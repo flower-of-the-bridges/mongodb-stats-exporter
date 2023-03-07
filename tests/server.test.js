@@ -18,11 +18,11 @@ tap.test('server', async test => {
     const dbName = `db-stats-exporter-${Date.now()}`
     const mongoDbClient = mongoClient.db(dbName)
 
-    for(const mock of mocks) {
-        await mongoDbClient.collection(mock.name).insertMany(Array.from({length: mock.length}, () => mock.generator()))
+    for (const mock of mocks) {
+        await mongoDbClient.collection(mock.name).insertMany(Array.from({ length: mock.length }, () => mock.generator()))
     }
 
-    const fastify = await server(mongoUri, [dbName])
+    const fastify = await server(mongoUri, [dbName, 'wrong-db'])
 
     test.teardown(async () => {
         await fastify.close()
@@ -32,22 +32,29 @@ tap.test('server', async test => {
 
     test.test('/-/metrics', async t => {
         t.test('ok', async assert => {
+
+            const actualStats = await mongoDbClient.stats()
             const { payload, statusCode } = await fastify.inject({
                 method: 'GET',
                 path: '/-/metrics'
             })
-            
-            const parsedPrometheusMetrics = parsePrometheusTextFormat(payload)
-            const metrics = parsedPrometheusMetrics.filter(metric => metric.name === 'objects')
-            const objectsMetric = metrics.find(metric => metric.name === 'objects')
-
-            for(const mock of mocks) {
-                const mockDbRecords = await mongoDbClient.collection(mock.name).find({}).toArray()
-                const objectsMetricDbValue = objectsMetric.metrics.find(metric => metric.labels.database === dbName)
-                assert.strictSame(mockDbRecords.length, Number(objectsMetricDbValue.value))
-            } 
 
             assert.strictSame(statusCode, 200)
+
+            const parsedPrometheusMetrics = parsePrometheusTextFormat(payload)
+
+
+            for (const key of Object.keys(actualStats)) {
+                const objectsMetric = parsedPrometheusMetrics.find(metric => metric.name === key)
+                if (objectsMetric) {
+                    const objectsMetricDbValue = objectsMetric.metrics.find(metric => metric.labels.database === dbName)
+                    if (typeof actualStats[key] === 'number') {
+                        assert.strictSame(actualStats[key], Number(objectsMetricDbValue.value))
+                    }
+                }
+
+            }
+
         })
     })
 
