@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "set -a && source ${ENV_FILE:-.env} && node index.js",
+    "test": "TAP_TIMEOUT=30000 tap -b tests/*.test.js tests/**/*.test.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,5 +20,10 @@
     "@fastify/mongodb": "^6.2.0",
     "fastify": "^4.14.1",
     "prom-client": "^14.2.0"
+  },
+  "tap": {
+    "nyc-arg": [
+      "--exclude=**/tests/testUtils.js"
+    ]
   }
 }
