@@ -8,7 +8,7 @@ const client = getClient()
  * 
  * @returns {fastify}
  */
-const start = async (mongoDbUri, mongoDbDatabases) => {
+const start = async function(mongoDbUri, mongoDbDatabases) {
 
   for (const [index, mongoDbDatabase] of mongoDbDatabases.entries()) {
 
@@ -26,7 +26,7 @@ const start = async (mongoDbUri, mongoDbDatabases) => {
 
   fastify.get('/-/metrics', async (request, reply) => {
 
-    for await (const mongoDbDatabase of mongoDbDatabases) {
+    for (const mongoDbDatabase of mongoDbDatabases) {
       const { db: mongoDbClient } = fastify.mongo[mongoDbDatabase]
       const dbStats = await mongoDbClient.stats()
       updateGaugeMetricsWithDbStats(client, dbStats, mongoDbDatabase)

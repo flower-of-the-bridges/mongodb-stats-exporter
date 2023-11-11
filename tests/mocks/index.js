@@ -10,7 +10,7 @@ function createRandomUser() {
         lastName: faker.name.lastName(),
         sex: faker.name.sexType(),
         subscriptionTier: faker.helpers.arrayElement(['free', 'basic', 'business']),
-    };
+    }
 }
 
 module.exports = [

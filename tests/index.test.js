@@ -1,7 +1,7 @@
 'use strict'
 
-const tap = require("tap")
-const util = require('util');
+const tap = require('tap')
+const util = require('util')
 const exec = util.promisify(require('child_process').execFile)
 const index = require('./../index')
 

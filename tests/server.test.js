@@ -33,7 +33,7 @@ tap.test('server', async test => {
     test.test('/-/metrics', async t => {
         t.test('ok', async assert => {
 
-            const actualStats = await mongoDbClient.stats()
+            const expectedStats = await mongoDbClient.stats()
             const { payload, statusCode } = await fastify.inject({
                 method: 'GET',
                 path: '/-/metrics'
@@ -44,17 +44,15 @@ tap.test('server', async test => {
             const parsedPrometheusMetrics = parsePrometheusTextFormat(payload)
 
 
-            for (const key of Object.keys(actualStats)) {
+            for (const key in expectedStats) {
                 const objectsMetric = parsedPrometheusMetrics.find(metric => metric.name === key)
                 if (objectsMetric) {
                     const objectsMetricDbValue = objectsMetric.metrics.find(metric => metric.labels.database === dbName)
-                    if (typeof actualStats[key] === 'number') {
-                        assert.strictSame(actualStats[key], Number(objectsMetricDbValue.value))
+                    if (typeof expectedStats[key] === 'number') {
+                        assert.strictSame(expectedStats[key], Number(objectsMetricDbValue.value))
                     }
                 }
-
             }
-
         })
     })
 
