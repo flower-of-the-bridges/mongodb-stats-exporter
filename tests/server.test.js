@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb')
 const tap = require('tap')
 const { GenericContainer } = require('testcontainers')
-const server = require('./../server')
+const Server = require('../lib/server')
 const mocks = require('./mocks')
 const parsePrometheusTextFormat = require('parse-prometheus-text-format')
 
@@ -22,7 +22,8 @@ tap.test('server', async test => {
         await mongoDbClient.collection(mock.name).insertMany(Array.from({ length: mock.length }, () => mock.generator()))
     }
 
-    const fastify = await server(mongoUri, [dbName, 'wrong-db'])
+    const server = await new Server(mongoUri, [dbName, 'wrong-db']).setup()
+    const { fastify } = await server.start()
 
     test.teardown(async () => {
         await fastify.close()
