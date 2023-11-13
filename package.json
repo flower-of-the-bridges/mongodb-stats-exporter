@@ -25,7 +25,7 @@
   },
   "tap": {
     "nyc-arg": [
-      "--exclude=**/tests/testUtils.js"
+      "--exclude=**/tests/mocks/**.js"
     ]
   }
 }

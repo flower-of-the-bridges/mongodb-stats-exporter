@@ -1,13 +1,15 @@
 {
     "parserOptions": {
-        "ecmaVersion": 2018
+        "ecmaVersion": 2020
     },
     "env": {
         "es6": true,
         "node": true
     },
     "rules": {
+        "indent": ["error", "tab"],
         "semi": ["error", "never"],
-        "quotes": ["error", "single"]
+        "quotes": ["error", "single"],
+        "object-curly-spacing": ["error", "always"]
     }
 }
